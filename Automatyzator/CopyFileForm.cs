@@ -10,33 +10,37 @@ using System.Windows.Forms;
 
 namespace Automatyzator
 {
-    public partial class MoveFileForm : Form
+    public partial class CopyFileForm : Form
     {
-        public delegate void MoveFileHandler(string sourcePath, string destinationPath);
-        public event MoveFileHandler OnMoveFileConfirmed;
-        public MoveFileForm()
+        public string SourcePath { get; private set; }
+        public string DestinationPath { get; private set; }
+        public CopyFileForm()
         {
             InitializeComponent();
         }
 
-        private void btnChooseFile_Click(object sender, EventArgs e)
+        private void btnChooseSourceFolder_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtSourcePath.Text = openFileDialog.FileName;
+                    SourcePath = openFileDialog.FileName;
+                    txtSourcePath.Text = SourcePath;
                 }
             }
+
         }
 
-        private void btnChooseFolder_Click(object sender, EventArgs e)
+        private void btnChooseDestinationFolder_Click(object sender, EventArgs e)
         {
+
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtDestinationPath.Text = folderBrowserDialog.SelectedPath;
+                    DestinationPath = folderBrowserDialog.SelectedPath;
+                    txtDestinationPath.Text = DestinationPath;
                 }
             }
         }
@@ -45,12 +49,13 @@ namespace Automatyzator
         {
             if (string.IsNullOrEmpty(txtSourcePath.Text) || string.IsNullOrEmpty(txtDestinationPath.Text))
             {
-                MessageBox.Show("Proszę wybrać zarówno plik źródłowy, jak i folder docelowy.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Proszę wybrać zarówno plik źródłowy, jak i lokalizację docelową.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            
-            OnMoveFileConfirmed?.Invoke(txtSourcePath.Text, txtDestinationPath.Text);
+            SourcePath = txtSourcePath.Text;
+            DestinationPath = txtDestinationPath.Text;
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
