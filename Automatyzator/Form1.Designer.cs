@@ -54,6 +54,8 @@
             this.btnUsunHost = new System.Windows.Forms.Button();
             this.btnImport = new System.Windows.Forms.Button();
             this.btnExecuteRemoteScript = new System.Windows.Forms.Button();
+            this.btnTestScript = new System.Windows.Forms.Button();
+            this.txtScriptPath = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -106,7 +108,7 @@
             // 
             // txtPathToSave
             // 
-            this.txtPathToSave.Location = new System.Drawing.Point(285, 664);
+            this.txtPathToSave.Location = new System.Drawing.Point(12, 602);
             this.txtPathToSave.Multiline = true;
             this.txtPathToSave.Name = "txtPathToSave";
             this.txtPathToSave.Size = new System.Drawing.Size(500, 20);
@@ -157,12 +159,12 @@
             this.txtGeneratedScript.Location = new System.Drawing.Point(12, 12);
             this.txtGeneratedScript.Multiline = true;
             this.txtGeneratedScript.Name = "txtGeneratedScript";
-            this.txtGeneratedScript.Size = new System.Drawing.Size(993, 605);
+            this.txtGeneratedScript.Size = new System.Drawing.Size(993, 543);
             this.txtGeneratedScript.TabIndex = 12;
             // 
             // btnWybierzLokalizacje
             // 
-            this.btnWybierzLokalizacje.Location = new System.Drawing.Point(791, 662);
+            this.btnWybierzLokalizacje.Location = new System.Drawing.Point(518, 602);
             this.btnWybierzLokalizacje.Name = "btnWybierzLokalizacje";
             this.btnWybierzLokalizacje.Size = new System.Drawing.Size(150, 23);
             this.btnWybierzLokalizacje.TabIndex = 13;
@@ -172,7 +174,7 @@
             // 
             // btnGenerujSkrypt
             // 
-            this.btnGenerujSkrypt.Location = new System.Drawing.Point(458, 623);
+            this.btnGenerujSkrypt.Location = new System.Drawing.Point(384, 561);
             this.btnGenerujSkrypt.Name = "btnGenerujSkrypt";
             this.btnGenerujSkrypt.Size = new System.Drawing.Size(135, 35);
             this.btnGenerujSkrypt.TabIndex = 14;
@@ -307,11 +309,31 @@
             this.btnExecuteRemoteScript.UseVisualStyleBackColor = true;
             this.btnExecuteRemoteScript.Click += new System.EventHandler(this.btnExecuteRemoteScript_Click);
             // 
+            // btnTestScript
+            // 
+            this.btnTestScript.Location = new System.Drawing.Point(1170, 590);
+            this.btnTestScript.Name = "btnTestScript";
+            this.btnTestScript.Size = new System.Drawing.Size(135, 35);
+            this.btnTestScript.TabIndex = 29;
+            this.btnTestScript.Text = "Testuj Skrypt";
+            this.btnTestScript.UseVisualStyleBackColor = true;
+            this.btnTestScript.Click += new System.EventHandler(this.btnTestScript_Click);
+            // 
+            // txtScriptPath
+            // 
+            this.txtScriptPath.Location = new System.Drawing.Point(841, 598);
+            this.txtScriptPath.Multiline = true;
+            this.txtScriptPath.Name = "txtScriptPath";
+            this.txtScriptPath.Size = new System.Drawing.Size(323, 20);
+            this.txtScriptPath.TabIndex = 30;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1434, 697);
+            this.ClientSize = new System.Drawing.Size(1388, 641);
+            this.Controls.Add(this.txtScriptPath);
+            this.Controls.Add(this.btnTestScript);
             this.Controls.Add(this.btnExecuteRemoteScript);
             this.Controls.Add(this.btnImport);
             this.Controls.Add(this.btnUsunHost);
@@ -338,6 +360,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Name = "Form1";
             this.Text = "Automat";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -372,6 +395,8 @@
         private System.Windows.Forms.Button btnUsunHost;
         private System.Windows.Forms.Button btnImport;
         private System.Windows.Forms.Button btnExecuteRemoteScript;
+        private System.Windows.Forms.Button btnTestScript;
+        private System.Windows.Forms.TextBox txtScriptPath;
     }
 }
 

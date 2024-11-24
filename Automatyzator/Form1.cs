@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClosedXML.Excel;
+using System.Diagnostics;
 
 namespace Automatyzator
 {
@@ -519,30 +520,7 @@ namespace Automatyzator
             }
         }
 
-        private void MoveFolderForm_OnMoveFolderConfirmed(string sourcePath, string destinationPath)
-        {
-            string fragmentSkryptu = "";
-
-            if (chkBatch.Checked)
-            {
-                fragmentSkryptu += $"move \"{sourcePath}\" \"{destinationPath}\"\n";
-            }
-
-            if (chkPowerShell.Checked)
-            {
-                fragmentSkryptu += $"Move-Item -Path \"{sourcePath}\" -Destination \"{destinationPath}\" -Recurse\n";
-            }
-
-            if (chkBash.Checked)
-            {
-                fragmentSkryptu += $"mv \"{sourcePath}\" \"{destinationPath}\"\n";
-            }
-
-            if (!string.IsNullOrEmpty(fragmentSkryptu))
-            {
-                txtGeneratedScript.AppendText(fragmentSkryptu + "\n");
-            }
-        }
+        
 
         private void btnWyczyscKod_Click(object sender, EventArgs e)
         {
@@ -778,5 +756,185 @@ namespace Automatyzator
             
             txtGeneratedScript.AppendText(generatedScript.ToString());
         }
+
+        private void btnTestScript_Click(object sender, EventArgs e)
+        {
+            // Sprawdzanie, czy użytkownik podał ścieżkę do skryptu
+            if (string.IsNullOrEmpty(txtScriptPath.Text))
+            {
+                // Otwórz okno dialogowe do wyboru pliku
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    openFileDialog.Title = "Wybierz plik skryptu";
+                    openFileDialog.Filter = "Pliki skryptów|*.bat;*.ps1;*.sh|Wszystkie pliki|*.*";
+
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        // Ustawienie wybranej ścieżki w polu tekstowym
+                        txtScriptPath.Text = openFileDialog.FileName;
+                    }
+                    else
+                    {
+                        // Jeśli użytkownik anulował, przerwij wykonanie
+                        MessageBox.Show("Nie wybrano pliku skryptu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+            }
+
+            // Logika zależna od zaznaczonego checkboxa
+            if (chkBatch.Checked)
+            {
+                TestBatchScript(txtScriptPath.Text);
+            }
+            else if (chkPowerShell.Checked)
+            {
+                TestPowerShellScript(txtScriptPath.Text);
+            }
+            else if (chkBash.Checked)
+            {
+                TestBashScript(txtScriptPath.Text);
+            }
+            else
+            {
+                MessageBox.Show("Proszę wybrać środowisko skryptu (Batch, PowerShell lub Bash).", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        
+        private bool IsWslInstalled()
+        {
+            try
+            {
+                // Uruchomienie komendy "wsl --list" i sprawdzenie wyniku
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = "/c wsl --list";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                // Jeśli brak błędów i jest jakaś lista dystrybucji, to WSL jest zainstalowany
+                if (!string.IsNullOrEmpty(output) && !output.Contains("is not recognized"))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Obsługa błędów - zakładamy brak WSL
+                MessageBox.Show($"Wystąpił problem podczas sprawdzania WSL: {ex.Message}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            if (!IsWslInstalled())
+            {
+               
+                    MessageBox.Show("Aplikacja wymaga WSL do działania. Zainstaluj go ręcznie, aby kontynuować uruchom powershell jako administrator wprowadz komende wsl --install .",
+                                    "Brak WSL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                
+            }
+            else
+            {
+                MessageBox.Show("WSL jest zainstalowany. Możesz korzystać z funkcji aplikacji.",
+                                "WSL Zainstalowany", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        private void TestBatchScript(string scriptPath)
+        {
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"/c {scriptPath}";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                string log = string.IsNullOrEmpty(error) ? $"[INFO] {output}" : $"[ERROR] {error}";
+                MessageBox.Show(log, "Test Batch Script", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"[EXCEPTION] {ex.Message}", "Błąd Testu Batch", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void TestPowerShellScript(string scriptPath)
+        {
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = "powershell.exe";
+                process.StartInfo.Arguments = $"-File \"{scriptPath}\"";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                string log = string.IsNullOrEmpty(error) ? $"[INFO] {output}" : $"[ERROR] {error}";
+                MessageBox.Show(log, "Test PowerShell Script", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"[EXCEPTION] {ex.Message}", "Błąd Testu PowerShell", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private void TestBashScript(string scriptPath)
+        {
+            try
+            {
+                // Konwersja ścieżki Windows na WSL
+                string wslPath = ConvertPathToWsl(scriptPath);
+
+                Process process = new Process();
+                process.StartInfo.FileName = "wsl.exe";
+                process.StartInfo.Arguments = $"bash {wslPath}";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                string log = string.IsNullOrEmpty(error) ? $"[INFO] {output}" : $"[ERROR] {error}";
+                MessageBox.Show(log, "Test Bash Script", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"[EXCEPTION] {ex.Message}", "Błąd Testu Bash", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Funkcja konwertująca ścieżkę Windows na WSL
+        private string ConvertPathToWsl(string windowsPath)
+        {
+            return windowsPath.Replace("C:\\", "/mnt/c/").Replace("\\", "/");
+        }
+
     }
 }

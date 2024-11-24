@@ -51,14 +51,18 @@ namespace Automatyzator
 
         private void btnConfirm_Click_1(object sender, EventArgs e)
         {
+            // Sprawdzenie, czy obie ścieżki zostały podane
             if (string.IsNullOrEmpty(txtSourcePath.Text) || string.IsNullOrEmpty(txtDestinationPath.Text))
             {
                 MessageBox.Show("Proszę wybrać zarówno folder źródłowy, jak i folder docelowy.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
+            // Przypisanie wartości do właściwości publicznych
+            SourcePath = txtSourcePath.Text;
+            DestinationPath = txtDestinationPath.Text;
 
-            OnMoveFolderConfirmed?.Invoke(txtSourcePath.Text, txtDestinationPath.Text);
+            // Ustawienie wyniku dialogowego i zamknięcie formularza
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
